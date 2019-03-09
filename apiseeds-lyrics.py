@@ -43,17 +43,17 @@ def process_result(album, metadata, response, reply, error):
 def process_track(album, metadata, track, release):
 
     apikey = config.setting['apiseeds_apikey']
-    if (apikey is None):
+    if not apikey:
         log.debug('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
     artist = metadata['artist']
-    if (artist is None):
+    if not artist:
         log.debug('{}: artist is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
     title = metadata['title']
-    if (title is None):
+    if not title:
         log.debug('{}: title is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
 
