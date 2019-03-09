@@ -1,6 +1,9 @@
 PLUGIN_NAME = 'Apiseeds Lyrics'
 PLUGIN_AUTHOR = 'Andrea Avallone'
-PLUGIN_DESCRIPTION = '''Fetch lyrics from Apiseeds Lyrics, which provides millions of lyrics from artist all around the world. Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'''
+PLUGIN_DESCRIPTION = 'Fetch lyrics from Apiseeds Lyrics, which provides millions of lyrics from artist all around the world. ' \
+                     'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. ' \
+                     'In order to use Apiseeds you need to get a free API key at <em>https://apiseeds.com</em>. ' \
+                     'Want to contribute? Check out the project page at <em>https://github.com/avalloneandrea/apiseeds-lyrics</em>!'
 PLUGIN_VERSION = '1.0.0'
 PLUGIN_API_VERSIONS = ['2.0.0']
 PLUGIN_LICENSE = 'MIT'
@@ -19,8 +22,8 @@ from urllib.parse import quote, urlencode
 
 APISEEDS_HOST = 'orion.apiseeds.com'
 APISEEDS_PORT = 443
-APISEEDS_RATE_LIMIT = 60 * 1000 / 200
-ratecontrol.set_minimum_delay((APISEEDS_HOST, APISEEDS_PORT), APISEEDS_RATE_LIMIT)
+APISEEDS_DELAY = 60 * 1000 / 200
+ratecontrol.set_minimum_delay((APISEEDS_HOST, APISEEDS_PORT), APISEEDS_DELAY)  # 200 requests per minute
 
 
 def process_result(album, metadata, response, reply, error):
@@ -39,9 +42,9 @@ def process_result(album, metadata, response, reply, error):
         album._finalize_loading(None)
 
 
-def process_track(album, metadata, release, track):
+def process_track(album, metadata, track, release):
 
-    apikey = config.setting['apiseeds_api_key']
+    apikey = config.setting['apiseeds_apikey']
     if (apikey is None):
         log.error('{}: API key is missing, please provide a valid value'.format(PLUGIN_NAME))
         return
@@ -77,7 +80,7 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
     TITLE = 'Apiseeds Lyrics'
     PARENT = 'plugins'
 
-    options = [TextOption('setting', 'apiseeds_api_key', None)]
+    options = [TextOption('setting', 'apiseeds_apikey', None)]
 
     def __init__(self, parent=None):
 
@@ -90,8 +93,7 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
 
         self.description = QtWidgets.QLabel(self)
         self.description.setText('Apiseeds Lyrics provides millions of lyrics from artist all around the world. '
-                                 'Lyrics provided are for educational purposes and personal use only. '
-                                 'Commercial use is not allowed. '
+                                 'Lyrics provided are for educational purposes and personal use only. Commercial use is not allowed. '
                                  'In order to use Apiseeds Lyrics you need to get a free API key <a href="https://apiseeds.com">here</a>.')
         self.description.setOpenExternalLinks(True)
         self.box.addWidget(self.description)
@@ -100,8 +102,7 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
         self.box.addWidget(self.input)
 
         self.contribute = QtWidgets.QLabel(self)
-        self.contribute.setText('Want to contribute? '
-                                'Check out the <a href="https://github.com/avalloneandrea/apiseeds-lyrics">project page</a>!')
+        self.contribute.setText('Want to contribute? Check out the <a href="https://github.com/avalloneandrea/apiseeds-lyrics">project page</a>!')
         self.contribute.setOpenExternalLinks(True)
         self.box.addWidget(self.contribute)
 
@@ -109,10 +110,10 @@ class ApiseedsLyricsOptionsPage(OptionsPage):
         self.box.addItem(self.spacer)
 
     def load(self):
-        self.input.setText(config.setting['apiseeds_api_key'])
+        self.input.setText(config.setting['apiseeds_apikey'])
 
     def save(self):
-        config.setting['apiseeds_api_key'] = self.input.text()
+        config.setting['apiseeds_apikey'] = self.input.text()
 
 
 register_track_metadata_processor(process_track)
